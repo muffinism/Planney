@@ -1,8 +1,12 @@
 import 'dart:convert';
 import 'dart:io' show Platform;
 import 'package:flutter/foundation.dart' show kIsWeb, ChangeNotifier;
+import 'package:flutter/material.dart';
 import 'package:http/http.dart' as http;
 import 'package:flutter_secure_storage/flutter_secure_storage.dart';
+import '../screens/login_page.dart';
+
+final GlobalKey<NavigatorState> navigatorKey = GlobalKey<NavigatorState>();
 
 String get apiBaseUrl {
   if (kIsWeb) {
@@ -135,16 +139,21 @@ class AuthProvider with ChangeNotifier {
 
 
   Future<void> logout() async {
-    _isLoading = true;
-    notifyListeners();
-
-    await _storage.deleteAll();
+    try {
+      await _storage.deleteAll();
+    } catch (e) {
+      // Ignore or log secure storage deletion failures (e.g. on Web platform)
+      _errorMessage = 'Failed to clear secure storage: $e';
+    }
     _token = null;
     _username = null;
     _email = null;
-    _errorMessage = null;
-    _isLoading = false;
     notifyListeners();
+
+    navigatorKey.currentState?.pushAndRemoveUntil(
+      MaterialPageRoute(builder: (_) => const LoginPage()),
+      (route) => false,
+    );
   }
 
   Future<void> fetchFriends() async {
@@ -165,6 +174,9 @@ class AuthProvider with ChangeNotifier {
       if (response.statusCode == 200) {
         final List<dynamic> data = json.decode(response.body);
         _friends = data.map((item) => Map<String, dynamic>.from(item)).toList();
+      } else if (response.statusCode == 401) {
+        await logout();
+        return;
       } else {
         final responseData = json.decode(response.body);
         _errorMessage = responseData['error'] ?? 'Failed to load friends.';
@@ -199,6 +211,9 @@ class AuthProvider with ChangeNotifier {
         
         _incomingRequests = incomingList.map((item) => Map<String, dynamic>.from(item)).toList();
         _outgoingRequests = outgoingList.map((item) => Map<String, dynamic>.from(item)).toList();
+      } else if (response.statusCode == 401) {
+        await logout();
+        return;
       } else {
         final responseData = json.decode(response.body);
         _errorMessage = responseData['error'] ?? 'Failed to load friend requests.';
@@ -226,6 +241,11 @@ class AuthProvider with ChangeNotifier {
         },
         body: json.encode({'username': username}),
       );
+
+      if (response.statusCode == 401) {
+        await logout();
+        return false;
+      }
 
       final responseData = json.decode(response.body);
 
@@ -262,6 +282,11 @@ class AuthProvider with ChangeNotifier {
         },
         body: json.encode({'action': action}),
       );
+
+      if (response.statusCode == 401) {
+        await logout();
+        return false;
+      }
 
       final responseData = json.decode(response.body);
 

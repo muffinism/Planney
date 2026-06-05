@@ -17,7 +17,7 @@ void main() async {
           create: (_) => TripProvider(),
           update: (_, auth, previousTrip) {
             final trip = previousTrip ?? TripProvider();
-            trip.updateToken(auth.token);
+            trip.update(auth.token, auth.logout);
             return trip;
           },
         ),
@@ -36,6 +36,7 @@ class MyApp extends StatelessWidget {
 
     return MaterialApp(
       title: 'Planney',
+      navigatorKey: navigatorKey,
       debugShowCheckedModeBanner: false,
       theme: ThemeData(
         useMaterial3: true,

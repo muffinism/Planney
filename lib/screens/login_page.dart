@@ -3,6 +3,7 @@ import 'package:provider/provider.dart';
 import '../providers/auth_provider.dart';
 import '../themes/colors.dart';
 import 'register_page.dart';
+import 'trip_dashboard_page.dart';
 
 class LoginPage extends StatefulWidget {
   const LoginPage({super.key});
@@ -12,14 +13,19 @@ class LoginPage extends StatefulWidget {
 }
 
 class _LoginPageState extends State<LoginPage> {
-  final _usernameController = TextEditingController();
+  final _emailController = TextEditingController();
   final _passwordController = TextEditingController();
   bool _isPasswordVisible = false; 
 
   void _login() async {
     final success = await Provider.of<AuthProvider>(context, listen: false)
-        .login(_usernameController.text.trim(), _passwordController.text.trim());
-    if (!success && mounted) {
+        .login(_emailController.text.trim(), _passwordController.text.trim());
+    if (success && mounted) {
+      Navigator.of(context).pushAndRemoveUntil(
+        MaterialPageRoute(builder: (_) => const TripDashboardPage()),
+        (route) => false,
+      );
+    } else if (!success && mounted) {
       ScaffoldMessenger.of(context).showSnackBar(const SnackBar(content: Text('Invalid credentials'), backgroundColor: Colors.redAccent));
     }
   }
@@ -38,9 +44,10 @@ class _LoginPageState extends State<LoginPage> {
               const Text('Welcome Back!', style: TextStyle(fontSize: 32, fontWeight: FontWeight.w900, color: PlanneyColors.text)),
               const SizedBox(height: 40),
               TextField(
-                controller: _usernameController,
+                controller: _emailController,
+                keyboardType: TextInputType.emailAddress,
                 decoration: InputDecoration(
-                  hintText: 'Username',
+                  hintText: 'Email',
                   filled: true,
                   fillColor: PlanneyColors.bg,
                   border: OutlineInputBorder(borderRadius: BorderRadius.circular(100), borderSide: BorderSide.none),

@@ -6,6 +6,7 @@ import 'auth_provider.dart';
 
 class TripProvider with ChangeNotifier {
   String? _token;
+  VoidCallback? _onUnauthorized;
   List<Trip> _trips = [];
   Trip? _currentTrip;
   bool _isLoading = false;
@@ -16,8 +17,9 @@ class TripProvider with ChangeNotifier {
   bool get isLoading => _isLoading;
   String? get errorMessage => _errorMessage;
 
-  void updateToken(String? token) {
+  void update(String? token, VoidCallback onUnauthorized) {
     _token = token;
+    _onUnauthorized = onUnauthorized;
   }
 
   Map<String, String> get _headers => {
@@ -58,6 +60,9 @@ class TripProvider with ChangeNotifier {
       if (response.statusCode == 200) {
         final List<dynamic> data = json.decode(response.body);
         _trips = data.map((json) => Trip.fromJson(json)).toList();
+      } else if (response.statusCode == 401) {
+        _onUnauthorized?.call();
+        return;
       } else {
         final data = json.decode(response.body);
         _errorMessage = data['error'] ?? 'Failed to load trips.';
@@ -84,6 +89,9 @@ class TripProvider with ChangeNotifier {
       if (response.statusCode == 200) {
         final Map<String, dynamic> data = json.decode(response.body);
         _currentTrip = Trip.fromJson(data);
+      } else if (response.statusCode == 401) {
+        _onUnauthorized?.call();
+        return;
       } else {
         final data = json.decode(response.body);
         _errorMessage = data['error'] ?? 'Failed to load trip details.';
@@ -119,6 +127,11 @@ class TripProvider with ChangeNotifier {
           if (memberIds != null) 'members': memberIds,
         }),
       );
+
+      if (response.statusCode == 401) {
+        _onUnauthorized?.call();
+        return false;
+      }
 
       final responseData = json.decode(response.body);
 
@@ -164,6 +177,11 @@ class TripProvider with ChangeNotifier {
         }),
       );
 
+      if (response.statusCode == 401) {
+        _onUnauthorized?.call();
+        return false;
+      }
+
       final responseData = json.decode(response.body);
 
       if (response.statusCode == 200) {
@@ -196,6 +214,11 @@ class TripProvider with ChangeNotifier {
         Uri.parse('$apiBaseUrl/trips/$tripId'),
         headers: _headers,
       );
+
+      if (response.statusCode == 401) {
+        _onUnauthorized?.call();
+        return false;
+      }
 
       final responseData = json.decode(response.body);
 
@@ -244,6 +267,11 @@ class TripProvider with ChangeNotifier {
         }),
       );
 
+      if (response.statusCode == 401) {
+        _onUnauthorized?.call();
+        return false;
+      }
+
       final responseData = json.decode(response.body);
 
       if (response.statusCode == 201) {
@@ -283,11 +311,15 @@ class TripProvider with ChangeNotifier {
         headers: _headers,
         body: json.encode({
           'agenda_title': agendaTitle,
-          'start_datetime': startDatetime.toUtc().toIso8601String(),
-          'end_datetime': endDatetime.toUtc().toIso8601String(),
+          'start_datetime': _formatDateTimeSafe(startDatetime),
+          'end_datetime': _formatDateTimeSafe(endDatetime),
           'agenda_details': agendaDetails,
         }),
       );
+      if (response.statusCode == 401) {
+        _onUnauthorized?.call();
+        return false;
+      }
       if (response.statusCode == 200) {
         await fetchTripDetails(tripId); 
         return true;
@@ -307,6 +339,10 @@ class TripProvider with ChangeNotifier {
         headers: _headers,
       );
       
+      if (response.statusCode == 401) {
+        _onUnauthorized?.call();
+        return false;
+      }
       if (response.statusCode == 200) {
         await fetchTripDetails(tripId);
         return true;

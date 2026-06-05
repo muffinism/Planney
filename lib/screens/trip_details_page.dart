@@ -252,11 +252,21 @@ class _TripDetailsPageState extends State<TripDetailsPage> {
     final formKey = GlobalKey<FormState>();
 
     Future<DateTime?> pickDateTime(DateTime initial) async {
+      final tripStart = DateTime(trip.startDate.year, trip.startDate.month, trip.startDate.day);
+      final tripEnd = DateTime(trip.endDate.year, trip.endDate.month, trip.endDate.day);
+      
+      DateTime pickerInitial = DateTime(initial.year, initial.month, initial.day);
+      if (pickerInitial.isBefore(tripStart)) {
+        pickerInitial = tripStart;
+      } else if (pickerInitial.isAfter(tripEnd)) {
+        pickerInitial = tripEnd;
+      }
+
       final date = await showDatePicker(
         context: context,
-        initialDate: initial,
-        firstDate: trip.startDate, 
-        lastDate: trip.endDate,
+        initialDate: pickerInitial,
+        firstDate: tripStart, 
+        lastDate: tripEnd,
       );
       if (date == null) return null;
       final time = await showTimePicker(context: context, initialTime: TimeOfDay.fromDateTime(initial));
@@ -341,11 +351,21 @@ class _TripDetailsPageState extends State<TripDetailsPage> {
     final formKey = GlobalKey<FormState>();
 
     Future<DateTime?> pickDateTime(DateTime initial) async {
+      final tripStart = DateTime(trip.startDate.year, trip.startDate.month, trip.startDate.day);
+      final tripEnd = DateTime(trip.endDate.year, trip.endDate.month, trip.endDate.day);
+      
+      DateTime pickerInitial = DateTime(initial.year, initial.month, initial.day);
+      if (pickerInitial.isBefore(tripStart)) {
+        pickerInitial = tripStart;
+      } else if (pickerInitial.isAfter(tripEnd)) {
+        pickerInitial = tripEnd;
+      }
+
       final date = await showDatePicker(
         context: context,
-        initialDate: initial,
-        firstDate: trip.startDate,
-        lastDate: trip.endDate,
+        initialDate: pickerInitial,
+        firstDate: tripStart,
+        lastDate: tripEnd,
       );
       if (date == null) return null;
       final time = await showTimePicker(context: context, initialTime: TimeOfDay.fromDateTime(initial));

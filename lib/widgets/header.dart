@@ -52,8 +52,9 @@ class PlanneyHeader extends StatelessWidget implements PreferredSizeWidget {
                         ElevatedButton(
                           style: ElevatedButton.styleFrom(backgroundColor: PlanneyColors.pink, shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(20))),
                           onPressed: () {
-                            Provider.of<AuthProvider>(context, listen: false).logout();
+                            final auth = Provider.of<AuthProvider>(context, listen: false);
                             Navigator.pop(ctx);
+                            Future.delayed(Duration.zero, () => auth.logout());
                           }, 
                           child: const Text('Logout', style: TextStyle(color: Colors.white)),
                         ),

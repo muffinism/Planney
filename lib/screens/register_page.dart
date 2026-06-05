@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 import '../providers/auth_provider.dart';
 import '../themes/colors.dart';
+import 'trip_dashboard_page.dart';
 
 class RegisterPage extends StatefulWidget {
   const RegisterPage({super.key});
@@ -25,9 +26,12 @@ class _RegisterPageState extends State<RegisterPage> {
     );
 
     if (success && mounted) {
-      Navigator.pop(context);
+      Navigator.of(context).pushAndRemoveUntil(
+        MaterialPageRoute(builder: (_) => const TripDashboardPage()),
+        (route) => false,
+      );
       ScaffoldMessenger.of(context).showSnackBar(
-        const SnackBar(content: Text('Account created! Please login.'), backgroundColor: PlanneyColors.green)
+        const SnackBar(content: Text('Account created! Welcome to Planney.'), backgroundColor: PlanneyColors.green)
       );
     } else if (mounted) {
       ScaffoldMessenger.of(context).showSnackBar(

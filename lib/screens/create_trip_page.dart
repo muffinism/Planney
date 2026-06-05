@@ -5,6 +5,7 @@ import '../providers/trip_provider.dart';
 import '../themes/colors.dart';
 import '../widgets/navbar.dart';
 import '../widgets/header.dart';
+import 'trip_dashboard_page.dart';
 
 class CreateTripPage extends StatefulWidget {
   const CreateTripPage({super.key});
@@ -106,7 +107,9 @@ class _CreateTripPageState extends State<CreateTripPage> {
         ScaffoldMessenger.of(context).showSnackBar(
           const SnackBar(content: Text('Trip initialized! Let\'s build the itinerary.'), backgroundColor: Colors.green),
         );
-        Navigator.of(context).pop(); 
+        Navigator.of(context).pushReplacement(
+          MaterialPageRoute(builder: (_) => const TripDashboardPage()),
+        );
       } else {
         ScaffoldMessenger.of(context).showSnackBar(
           SnackBar(content: Text(tripProvider.errorMessage ?? 'Failed to create trip.'), backgroundColor: Colors.redAccent),
