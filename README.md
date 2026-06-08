@@ -84,3 +84,13 @@ CREATE DATABASE fullstack_db;
 3. **Running the Apps**:
    - Use the **Built-in Terminal** to run the backend (`cd backend && npm run dev`).
    - Use the **Run and Debug** tab (F5) or status bar device selector to select your device/simulator and run the Flutter application.
+
+## 👥 Contributors
+
+Meet the team behind Planney.
+
+| Name | Responsibilities | GitHub |
+|------|-----------------|--------|
+| muffinism | Backend, final testing | [@muffinism](https://github.com/muffinism) |
+| marissangls | Frontend | [@marissangls](https://github.com/marissangls) |
+| Nicholas-Kenny | Backend, final testing | [@Nicholas-Kenny](https://github.com/Nicholas-Kenny) |
